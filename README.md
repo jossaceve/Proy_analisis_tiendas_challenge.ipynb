@@ -1,0 +1,200 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# 📊 Challenge 1 - Análisis de Tiendas\n",
+    "\n",
+    "Análisis comparativo de cuatro tiendas basado en:\n",
+    "1. Facturación total\n",
+    "2. Categorías más populares\n",
+    "3. Promedio de evaluación\n",
+    "4. Productos más y menos vendidos\n",
+    "5. Costo promedio de envío\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "# Instalación (si es necesario)\n",
+    "!pip install pandas numpy"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "import pandas as pd\n",
+    "import numpy as np"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 📂 Carga de Datos"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "# Si usas Google Drive\n",
+    "from google.colab import drive\n",
+    "drive.mount('/content/drive')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "# Ajustar ruta según ubicación\n",
+    "ruta = \"/content/drive/MyDrive/challenge1-data-science-latam-main/base-de-datos-challenge1-latam/\"\n",
+    "\n",
+    "df1 = pd.read_csv(ruta + \"tienda_1.csv\")\n",
+    "df2 = pd.read_csv(ruta + \"tienda_2.csv\")\n",
+    "df3 = pd.read_csv(ruta + \"tienda_3.csv\")\n",
+    "df4 = pd.read_csv(ruta + \"tienda_4.csv\")\n",
+    "\n",
+    "df1[\"tienda\"] = \"Tienda 1\"\n",
+    "df2[\"tienda\"] = \"Tienda 2\"\n",
+    "df3[\"tienda\"] = \"Tienda 3\"\n",
+    "df4[\"tienda\"] = \"Tienda 4\"\n",
+    "\n",
+    "df = pd.concat([df1, df2, df3, df4], ignore_index=True)\n",
+    "\n",
+    "df.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 1️⃣ Facturación Total por Tienda"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "df[\"facturacion\"] = df[\"precio\"] * df[\"cantidad\"]\n",
+    "facturacion_tienda = df.groupby(\"tienda\")[\"facturacion\"].sum().sort_values(ascending=False)\n",
+    "facturacion_tienda"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 2️⃣ Categorías Más Populares"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "categorias = df.groupby([\"tienda\", \"categoria\"])[\"cantidad\"].sum().reset_index()\n",
+    "\n",
+    "categoria_top = categorias.loc[\n",
+    "    categorias.groupby(\"tienda\")[\"cantidad\"].idxmax()\n",
+    "]\n",
+    "\n",
+    "categoria_top"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 3️⃣ Promedio de Evaluación"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "promedio_evaluacion = df.groupby(\"tienda\")[\"evaluacion_cliente\"].mean()\n",
+    "promedio_evaluacion.sort_values(ascending=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 4️⃣ Productos Más y Menos Vendidos"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "productos = df.groupby([\"tienda\", \"producto\"])[\"cantidad\"].sum().reset_index()\n",
+    "\n",
+    "mas_vendidos = productos.loc[\n",
+    "    productos.groupby(\"tienda\")[\"cantidad\"].idxmax()\n",
+    "]\n",
+    "\n",
+    "menos_vendidos = productos.loc[\n",
+    "    productos.groupby(\"tienda\")[\"cantidad\"].idxmin()\n",
+    "]\n",
+    "\n",
+    "mas_vendidos, menos_vendidos"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 5️⃣ Costo Promedio de Envío"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "costo_envio_promedio = df.groupby(\"tienda\")[\"costo_envio\"].mean()\n",
+    "costo_envio_promedio.sort_values()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 📈 Visualización Básica"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "metadata": {},
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "facturacion_tienda.plot(kind=\"bar\", title=\"Facturación Total por Tienda\")\n",
+    "plt.ylabel(\"Facturación\")\n",
+    "plt.show()\n",
+    "\n",
+    "promedio_evaluacion.plot(kind=\"bar\", color=\"green\", title=\"Promedio de Evaluación\")\n",
+    "plt.ylabel(\"Evaluación Promedio\")\n",
+    "plt.show()"
+   ]
+  }
+ ],
+ "metadata": {
+  "colab": {
+   "name": "analisis_tiendas_challenge.ipynb"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "name": "python",
+   "version": "3.x"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 0
+}
